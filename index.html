@@ -513,6 +513,7 @@ document.getElementById('btnRejoindre').addEventListener('click', async () => {
     const data = await r.json();
     if (r.ok){
       afficherStatus(statusEl, "Couple activé ! Vous recevrez des conseils complémentaires.", true);
+      chargerConseil(userId);
     } else {
       afficherStatus(statusEl, data.erreur || "Code invalide ou déjà utilisé.", false);
     }
