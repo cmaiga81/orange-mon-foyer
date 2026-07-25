@@ -402,6 +402,15 @@ async function appelerAPI(path, fetchOptions = {}, statusEl = null, tentativeRev
   }
 }
 
+async function lireJSON(r){
+  const texte = await r.text();
+  try{
+    return JSON.parse(texte);
+  } catch(e){
+    throw new Error("Le service redémarre encore, merci de patienter quelques secondes et de réessayer.");
+  }
+}
+
 async function chargerConseil(userId){
   const conseilTexte = document.getElementById('conseilTexte');
   const conseilCat = document.getElementById('conseilCat');
@@ -409,7 +418,7 @@ async function chargerConseil(userId){
   conseilTexte.textContent = "Chargement du conseil...";
   try{
     const r = await appelerAPI(`/conseil/du-jour/${userId}`);
-    const data = await r.json();
+    const data = await lireJSON(r);
     if (r.ok){
       conseilTexte.textContent = data.texte;
       conseilCat.textContent = "J" + data.id;
@@ -442,7 +451,7 @@ document.getElementById('btnConnexion').addEventListener('click', async () => {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({msisdn})
     }, statusEl);
-    const data = await r.json();
+    const data = await lireJSON(r);
     if (r.ok){
       afficherStatus(statusEl, `Bienvenue ${data.prenom || ""} ! Voici votre conseil du jour.`, true);
       chargerConseil(data.id);
@@ -480,7 +489,7 @@ document.getElementById('btnInscrire').addEventListener('click', async () => {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({msisdn})
     }, statusEl);
-    const data = await r.json();
+    const data = await lireJSON(r);
     if (r.ok){
       afficherStatus(statusEl, `Inscription réussie ! Votre ID utilisateur est ${data.id} (gardez-le pour le mode couple).`, true);
       chargerConseil(data.id);
@@ -535,7 +544,7 @@ document.getElementById('btnAjouterPartenaire').addEventListener('click', async 
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({utilisateur_id: parseInt(userId), msisdn_partenaire: msisdnPartenaire})
     }, statusEl);
-    const data = await r.json();
+    const data = await lireJSON(r);
     if (r.ok){
       afficherStatus(statusEl, "Couple activé ! Votre partenaire a reçu un SMS. Vous recevrez tous les deux des conseils complémentaires.", true);
       chargerConseil(userId);
@@ -570,7 +579,7 @@ document.getElementById('btnRetraitCouple').addEventListener('click', async () =
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({msisdn})
     }, statusEl);
-    const data = await r.json();
+    const data = await lireJSON(r);
     if (r.ok){
       afficherStatus(statusEl, "Vous avez bien été retiré(e) de ce couple.", true);
     } else {
@@ -604,7 +613,7 @@ document.getElementById('btnDesabonner').addEventListener('click', async () => {
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({msisdn})
     }, statusEl);
-    const data = await r.json();
+    const data = await lireJSON(r);
     if (r.ok){
       afficherStatus(statusEl, "Vous êtes désabonné(e). Un SMS de confirmation vous a été envoyé.", true);
     } else {
